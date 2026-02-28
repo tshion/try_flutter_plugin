@@ -73,4 +73,14 @@ android {
 dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.mockito:mockito-core:5.0.0")
+
+    implementation(files("libs/trykmp-android-0.1.4.aar"))
+
+    val ktor = "3.4.0"
+    implementation("io.ktor:ktor-client-content-negotiation:${ktor}")
+    implementation("io.ktor:ktor-client-okhttp:$ktor")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
 }
