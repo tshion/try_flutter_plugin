@@ -2,7 +2,7 @@
 // See also: https://pub.dev/packages/pigeon
 @file:Suppress("UNCHECKED_CAST", "ArrayInDataClass")
 
-package io.github.tshion.try_flutter_plugin.bridges
+package io.github.tshion.try_flutter_plugin
 
 import android.util.Log
 import io.flutter.plugin.common.BasicMessageChannel
@@ -182,11 +182,10 @@ private open class TryKmpPigeonCodec : StandardMessageCodec() {
   }
 }
 
-
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface TryKmpHostApi {
   fun time(): String
-  fun searchGitHubRepo(query: String, callback: (Result<GitHubRepoDto>) -> Unit)
+  fun searchGitHubRepo(query: String): GitHubRepoDto
 
   companion object {
     /** The codec used by TryKmpHostApi. */
@@ -197,6 +196,7 @@ interface TryKmpHostApi {
     @JvmOverloads
     fun setUp(binaryMessenger: BinaryMessenger, api: TryKmpHostApi?, messageChannelSuffix: String = "") {
       val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+      val taskQueue = binaryMessenger.makeBackgroundTaskQueue()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.trykmp.TryKmpHostApi.time$separatedMessageChannelSuffix", codec)
         if (api != null) {
@@ -213,20 +213,17 @@ interface TryKmpHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.trykmp.TryKmpHostApi.searchGitHubRepo$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.trykmp.TryKmpHostApi.searchGitHubRepo$separatedMessageChannelSuffix", codec, taskQueue)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val queryArg = args[0] as String
-            api.searchGitHubRepo(queryArg) { result: Result<GitHubRepoDto> ->
-              val error = result.exceptionOrNull()
-              if (error != null) {
-                reply.reply(TryKmpPigeonUtils.wrapError(error))
-              } else {
-                val data = result.getOrNull()
-                reply.reply(TryKmpPigeonUtils.wrapResult(data))
-              }
+            val wrapped: List<Any?> = try {
+              listOf(api.searchGitHubRepo(queryArg))
+            } catch (exception: Throwable) {
+              TryKmpPigeonUtils.wrapError(exception)
             }
+            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)

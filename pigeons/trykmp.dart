@@ -2,22 +2,22 @@ import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
   PigeonOptions(
-    dartOut: 'lib/bridges/trykmp.g.dart',
+    dartOut: 'lib/src/trykmp.g.dart',
     dartPackageName: 'trykmp',
     kotlinOptions: KotlinOptions(
-      package: 'io.github.tshion.try_flutter_plugin.bridges',
+      package: 'io.github.tshion.try_flutter_plugin',
     ),
     kotlinOut:
-        'android/src/main/kotlin/io/github/tshion/try_flutter_plugin/bridges/TryKmp.g.kt',
+        'android/src/main/kotlin/io/github/tshion/try_flutter_plugin/TryKmp.g.kt',
     swiftOut:
-        'ios/try_flutter_plugin/Sources/try_flutter_plugin/Bridges/TryKmp.g.swift',
+        'ios/try_flutter_plugin/Sources/try_flutter_plugin/TryKmp.g.swift',
   ),
 )
 @HostApi()
 abstract class TryKmpHostApi {
   String time();
 
-  @async
+  @TaskQueue(type: TaskQueueType.serialBackgroundThread)
   GitHubRepoDto searchGitHubRepo(String query);
 }
 

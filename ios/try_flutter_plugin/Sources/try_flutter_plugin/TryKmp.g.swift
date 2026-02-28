@@ -243,11 +243,10 @@ class TryKmpPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
   static let shared = TryKmpPigeonCodec(readerWriter: TryKmpPigeonCodecReaderWriter())
 }
 
-
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol TryKmpHostApi {
   func time() throws -> String
-  func searchGitHubRepo(query: String, completion: @escaping (Result<GitHubRepoDto, Error>) -> Void)
+  func searchGitHubRepo(query: String) throws -> GitHubRepoDto
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -256,6 +255,11 @@ class TryKmpHostApiSetup {
   /// Sets up an instance of `TryKmpHostApi` to handle messages through the `binaryMessenger`.
   static func setUp(binaryMessenger: FlutterBinaryMessenger, api: TryKmpHostApi?, messageChannelSuffix: String = "") {
     let channelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
+    #if os(iOS)
+      let taskQueue = binaryMessenger.makeBackgroundTaskQueue?()
+    #else
+      let taskQueue: FlutterTaskQueue? = nil
+    #endif
     let timeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.trykmp.TryKmpHostApi.time\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       timeChannel.setMessageHandler { _, reply in
@@ -269,18 +273,18 @@ class TryKmpHostApiSetup {
     } else {
       timeChannel.setMessageHandler(nil)
     }
-    let searchGitHubRepoChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.trykmp.TryKmpHostApi.searchGitHubRepo\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let searchGitHubRepoChannel = taskQueue == nil
+      ? FlutterBasicMessageChannel(name: "dev.flutter.pigeon.trykmp.TryKmpHostApi.searchGitHubRepo\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+      : FlutterBasicMessageChannel(name: "dev.flutter.pigeon.trykmp.TryKmpHostApi.searchGitHubRepo\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec, taskQueue: taskQueue)
     if let api = api {
       searchGitHubRepoChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let queryArg = args[0] as! String
-        api.searchGitHubRepo(query: queryArg) { result in
-          switch result {
-          case .success(let res):
-            reply(wrapResult(res))
-          case .failure(let error):
-            reply(wrapError(error))
-          }
+        do {
+          let result = try api.searchGitHubRepo(query: queryArg)
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
         }
       }
     } else {
