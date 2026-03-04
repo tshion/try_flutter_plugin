@@ -24,23 +24,30 @@ class TryFlutterPlugin : FlutterPlugin, TryKmpHostApi {
         return model.time()
     }
 
-    override fun searchGitHubRepo(query: String): GitHubRepoDto {
-        return runBlocking {
-            val result = model.searchGitHubRepo(query)
-            result.let { native ->
-                GitHubRepoDto(
-                    native.totalCount.toLong(),
-                    native.incompleteResults,
-                    native.items.map {
-                        GitHubRepoItemDto(
-                            it.fullName,
-                            it.description,
-                            it.url,
-                            it.updatedAt.toString(),
-                            it.language,
-                        )
-                    },
-                )
+    override fun searchGitHubRepo(
+        query: String,
+        callback: (Result<GitHubRepoDto>) -> Unit,
+    ) {
+        runBlocking {
+            try {
+                val result = model.searchGitHubRepo(query)
+                result.let { native ->
+                    GitHubRepoDto(
+                        native.totalCount.toLong(),
+                        native.incompleteResults,
+                        native.items.map {
+                            GitHubRepoItemDto(
+                                it.fullName,
+                                it.description,
+                                it.url,
+                                it.updatedAt.toString(),
+                                it.language,
+                            )
+                        },
+                    )
+                }.also { callback(Result.success(it)) }
+            } catch (e: Exception) {
+                callback(Result.failure(e))
             }
         }
     }

@@ -6,16 +6,20 @@ import PackageDescription
 let package = Package(
     name: "try_flutter_plugin",
     platforms: [
-        .iOS("13.0")
+        .iOS("16.0")
     ],
     products: [
         .library(name: "try-flutter-plugin", targets: ["try_flutter_plugin"])
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/tshion/TryKMMRepo.git", exact: "0.1.5"),
+    ],
     targets: [
         .target(
             name: "try_flutter_plugin",
-            dependencies: [],
+            dependencies: [
+                .product(name: "TryKMP", package: "TryKMMRepo")
+            ],
             resources: [
                 // If your plugin requires a privacy manifest, for example if it uses any required
                 // reason APIs, update the PrivacyInfo.xcprivacy file to describe your plugin's

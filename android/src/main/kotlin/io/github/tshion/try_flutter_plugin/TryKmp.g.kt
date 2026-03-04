@@ -182,10 +182,11 @@ private open class TryKmpPigeonCodec : StandardMessageCodec() {
   }
 }
 
+
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface TryKmpHostApi {
   fun time(): String
-  fun searchGitHubRepo(query: String): GitHubRepoDto
+  fun searchGitHubRepo(query: String, callback: (Result<GitHubRepoDto>) -> Unit)
 
   companion object {
     /** The codec used by TryKmpHostApi. */
@@ -218,12 +219,15 @@ interface TryKmpHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val queryArg = args[0] as String
-            val wrapped: List<Any?> = try {
-              listOf(api.searchGitHubRepo(queryArg))
-            } catch (exception: Throwable) {
-              TryKmpPigeonUtils.wrapError(exception)
+            api.searchGitHubRepo(queryArg) { result: Result<GitHubRepoDto> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(TryKmpPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(TryKmpPigeonUtils.wrapResult(data))
+              }
             }
-            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)

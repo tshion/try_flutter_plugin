@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "trykmmrepo",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tshion/TryKMMRepo.git",
+      "state" : {
+        "revision" : "7e285c3f9e3b38c1d6d2be73bac608960ccde566",
+        "version" : "0.1.5"
+      }
+    }
+  ],
+  "version" : 2
+}

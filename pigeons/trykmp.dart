@@ -17,6 +17,7 @@ import 'package:pigeon/pigeon.dart';
 abstract class TryKmpHostApi {
   String time();
 
+  @async
   @TaskQueue(type: TaskQueueType.serialBackgroundThread)
   GitHubRepoDto searchGitHubRepo(String query);
 }

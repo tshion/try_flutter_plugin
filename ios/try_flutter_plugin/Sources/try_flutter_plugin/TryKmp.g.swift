@@ -243,10 +243,11 @@ class TryKmpPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
   static let shared = TryKmpPigeonCodec(readerWriter: TryKmpPigeonCodecReaderWriter())
 }
 
+
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol TryKmpHostApi {
   func time() throws -> String
-  func searchGitHubRepo(query: String) throws -> GitHubRepoDto
+  func searchGitHubRepo(query: String, completion: @escaping (Result<GitHubRepoDto, Error>) -> Void)
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -280,11 +281,13 @@ class TryKmpHostApiSetup {
       searchGitHubRepoChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let queryArg = args[0] as! String
-        do {
-          let result = try api.searchGitHubRepo(query: queryArg)
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
+        api.searchGitHubRepo(query: queryArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
         }
       }
     } else {

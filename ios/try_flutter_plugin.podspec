@@ -15,7 +15,7 @@ A new Flutter plugin project.
   s.source           = { :path => '.' }
   s.source_files = 'try_flutter_plugin/Sources/try_flutter_plugin/**/*'
   s.dependency 'Flutter'
-  s.platform = :ios, '13.0'
+  s.platform = :ios, '16.0'
 
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
@@ -26,4 +26,6 @@ A new Flutter plugin project.
   # plugin's privacy impact, and then uncomment this line. For more information,
   # see https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
   # s.resource_bundles = {'try_flutter_plugin_privacy' => ['try_flutter_plugin/Sources/try_flutter_plugin/PrivacyInfo.xcprivacy']}
+
+  s.dependency "TryKMMRepo/TryKMP", "0.1.5"
 end
