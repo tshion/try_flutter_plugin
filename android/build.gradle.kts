@@ -50,7 +50,7 @@ android {
     }
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 29
     }
 
     testOptions {
@@ -74,7 +74,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.mockito:mockito-core:5.0.0")
 
-    implementation(files("libs/trykmp-android-0.1.4.aar"))
+    compileOnly(files("libs/trykmp-android-0.1.5.aar"))
 
     val ktor = "3.4.0"
     implementation("io.ktor:ktor-client-content-negotiation:${ktor}")
