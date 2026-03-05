@@ -1,1 +1,5 @@
-export 'package:try_flutter_plugin/src/trykmp.g.dart';
+export 'src/trykmp.g.dart';
+
+import 'src/trykmp.g.dart';
+
+typedef TryKmpPlugin = TryKmpHostApi;
